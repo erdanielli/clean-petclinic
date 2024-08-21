@@ -26,6 +26,7 @@
 			</activation>
 			<modules>
 				<module>rest-api</module>
+				<module>infrastructure/postgres</module>
 			</modules>
 		</profile>
 	</profiles>
