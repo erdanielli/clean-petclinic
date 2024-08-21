@@ -8,4 +8,17 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>application</artifactId>
+	<dependencies>
+		<!-- Page/Pageable + NonNullApi -->
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-beans</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
 </project>
