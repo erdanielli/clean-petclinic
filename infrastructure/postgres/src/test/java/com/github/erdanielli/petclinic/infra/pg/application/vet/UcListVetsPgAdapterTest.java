@@ -16,16 +16,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 @SpringBootTest(webEnvironment = NONE)
 class UcListVetsPgAdapterTest {
-    @Autowired
-    JdbcClient jdbcClient;
-    @Autowired
-    JsonRowMapperFactory factory;
-
     static UcListVetsPgAdapter useCase;
 
     @Mock
@@ -35,17 +31,15 @@ class UcListVetsPgAdapterTest {
     ArgumentCaptor<Page<Vet>> pageCaptor;
 
     @BeforeEach
-    void createUseCaseOnce() {
+    void createUseCaseOnce(@Autowired JdbcClient jdbc, @Autowired JsonRowMapperFactory mapperFactory) {
         if (useCase == null) {
-            useCase = new UcListVetsPgAdapter(jdbcClient, factory);
+            useCase = new UcListVetsPgAdapter(jdbc, mapperFactory);
         }
     }
 
     @Test
     void executeUnpaged() {
-        useCase.execute(new UcListVets.Input(Pageable.unpaged()), presenter);
-        verify(presenter).showPage(pageCaptor.capture());
-        var page = pageCaptor.getValue();
+        var page = shouldShowPageOnce(Pageable.unpaged());
         assertThat(page.getPageable().isUnpaged()).isTrue();
         assertThat(page.getTotalPages()).isOne();
         assertThat(page.getTotalElements()).isEqualTo(6);
@@ -53,11 +47,15 @@ class UcListVetsPgAdapterTest {
 
     @Test
     void executePaged() {
-        useCase.execute(new UcListVets.Input(PageRequest.of(0, 4)), presenter);
-        verify(presenter).showPage(pageCaptor.capture());
-        var page = pageCaptor.getValue();
+        var page = shouldShowPageOnce(PageRequest.of(0, 4));
         assertThat(page.getPageable().isUnpaged()).isFalse();
         assertThat(page.getTotalPages()).isEqualTo(2);
         assertThat(page.getTotalElements()).isEqualTo(6);
+    }
+
+    private Page<Vet> shouldShowPageOnce(Pageable pageable) {
+        useCase.execute(new UcListVets.Input(pageable), presenter);
+        verify(presenter, times(1)).showPage(pageCaptor.capture());
+        return pageCaptor.getValue();
     }
 }
