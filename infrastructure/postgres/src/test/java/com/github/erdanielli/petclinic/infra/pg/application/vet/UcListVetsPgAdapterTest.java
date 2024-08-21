@@ -15,7 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.github.erdanielli.petclinic.infra.pg.PageAssert.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
@@ -40,17 +40,17 @@ class UcListVetsPgAdapterTest {
     @Test
     void executeUnpaged() {
         var page = shouldShowPageOnce(Pageable.unpaged());
-        assertThat(page.getPageable().isUnpaged()).isTrue();
-        assertThat(page.getTotalPages()).isOne();
-        assertThat(page.getTotalElements()).isEqualTo(6);
+        assertThat(page)
+                .isUnpaged()
+                .hasTotalElements(6);
     }
 
     @Test
     void executePaged() {
         var page = shouldShowPageOnce(PageRequest.of(0, 4));
-        assertThat(page.getPageable().isUnpaged()).isFalse();
-        assertThat(page.getTotalPages()).isEqualTo(2);
-        assertThat(page.getTotalElements()).isEqualTo(6);
+        assertThat(page)
+                .hasTotalPages(2)
+                .hasTotalElements(6);
     }
 
     private Page<Vet> shouldShowPageOnce(Pageable pageable) {
